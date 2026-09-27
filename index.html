@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>2mriky Squeeze Bulk</title>
-<meta name="description" content="ضغط صور بالجملة جوه المتصفح — من غير ما الكواليتي تبوظ ومن غير ما الأسامي تتغير.">
+<meta name="description" content="ضغط صور و PDF بالجملة جوه المتصفح — من غير ما الكواليتي تبوظ ومن غير ما الأسامي تتغير.">
 <meta name="theme-color" content="#111111">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23111'/%3E%3Cpath d='M18 22h28M22 32h20M26 42h12' stroke='%23E07848' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=1">
+<link rel="stylesheet" href="styles.css?v=2">
 </head>
 <body>
 
@@ -19,14 +19,14 @@
     <span class="logo" aria-hidden="true"><i></i><i></i><i></i></span>
     <div>
       <h1>2mriky <b>Squeeze</b> Bulk</h1>
-      <p class="sub">ضغط بالجملة · الأسامي زي ما هي · كل حاجة جوه المتصفح</p>
+      <p class="sub">صور و PDF · الأسامي زي ما هي · كل حاجة جوه المتصفح</p>
     </div>
   </div>
 </header>
 
 <section class="summary" id="summary" style="display:none">
   <div class="sum-stats">
-    <div class="stat"><span class="k">الصور</span><span class="v" id="sumCount">0</span></div>
+    <div class="stat"><span class="k">الملفات</span><span class="v" id="sumCount">0</span></div>
     <div class="stat"><span class="k">قبل</span><span class="v" id="sumBefore">0</span></div>
     <div class="stat"><span class="k">بعد</span><span class="v" id="sumAfter">0</span></div>
     <div class="stat save"><span class="k">التوفير</span><span class="v" id="sumSaved">0%</span></div>
@@ -34,6 +34,7 @@
   <div class="sum-progress" id="sumProgressWrap" style="display:none"><div class="bar" id="sumProgress"></div></div>
   <div class="sum-actions">
     <button class="btn ghost" id="clearAll" type="button">امسح الكل</button>
+    <button class="btn" id="makePdf" type="button" disabled>صور ← PDF</button>
     <button class="btn primary" id="zipAll" type="button" disabled>نزّل الكل ZIP</button>
   </div>
 </section>
@@ -42,7 +43,7 @@
   <aside class="panel" id="globalPanel">
     <button type="button" class="panel-head" id="panelToggle" aria-expanded="true">
       <h2>الإعدادات العامة</h2>
-      <span class="hint" id="panelHint">بتتطبق على كل الصور</span>
+      <span class="hint" id="panelHint">بتتطبق على كل الملفات</span>
       <span class="chev" aria-hidden="true">▾</span>
     </button>
     <div id="globalForm"></div>
@@ -50,12 +51,12 @@
 
   <section class="work">
     <label class="drop" id="drop" for="fileInput">
-      <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" multiple hidden style="display:none">
+      <input type="file" id="fileInput" accept="image/*,application/pdf,.pdf,.heic,.heif,.avif,.tif,.tiff,.svg,.bmp,.gif,.jpg,.jpeg,.png,.webp" multiple hidden style="display:none">
       <span class="drop-icon" aria-hidden="true">
         <svg viewBox="0 0 48 48" width="44" height="44"><path d="M24 31V11m0 0-8 8m8-8 8 8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 29v6a4 4 0 0 0 4 4h20a4 4 0 0 0 4-4v-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
       </span>
-      <strong>اسحب الصور هنا</strong>
-      <span class="drop-sub">أو <u>اختار ملفات</u> — JPG · PNG · WebP · مئات الصور مرة واحدة</span>
+      <strong>اسحب الملفات هنا</strong>
+      <span class="drop-sub">أو <u>اختار ملفات</u> — أي صورة (حتى HEIC و TIFF) و PDF<span class="desk-only"> · أو الصق بـ <bdi dir="ltr">⌘V</bdi></span></span>
     </label>
     <div class="toast" id="toast" style="display:none"></div>
     <div class="grid" id="grid"></div>
@@ -68,6 +69,11 @@
     <div class="modal-head">
       <div class="cmp-title"><strong id="cmpName"></strong><span id="cmpMeta"></span></div>
       <div class="cmp-tools">
+        <div class="pager" id="cmpPager" style="display:none" dir="ltr">
+          <button type="button" class="icon-btn" id="cmpPrev" aria-label="الصفحة اللي قبل">‹</button>
+          <span id="cmpPage">1 / 1</span>
+          <button type="button" class="icon-btn" id="cmpNext" aria-label="الصفحة اللي بعد">›</button>
+        </div>
         <div class="seg" id="zoomSeg">
           <button type="button" data-zoom="fit" class="on">Fit</button>
           <button type="button" data-zoom="100">100%</button>
@@ -90,10 +96,10 @@
 </div>
 
 <!-- Per-image settings modal -->
-<div class="modal" id="itemModal" style="display:none" role="dialog" aria-modal="true" aria-label="إعدادات الصورة">
+<div class="modal" id="itemModal" style="display:none" role="dialog" aria-modal="true" aria-label="إعدادات الملف">
   <div class="modal-card sheet">
     <div class="modal-head">
-      <div class="cmp-title"><strong>إعدادات الصورة دي بس</strong><span id="itemName"></span></div>
+      <div class="cmp-title"><strong>إعدادات الملف ده بس</strong><span id="itemName"></span></div>
       <button class="icon-btn" type="button" data-close aria-label="قفل">✕</button>
     </div>
     <div id="itemForm"></div>
@@ -104,9 +110,42 @@
   </div>
 </div>
 
-<footer class="foot">مفيش ولا صورة بتترفع على أي سيرفر — المعالجة كلها على جهازك.</footer>
+<!-- Images → PDF -->
+<div class="modal" id="pdfModal" style="display:none" role="dialog" aria-modal="true" aria-label="اعمل PDF من الصور">
+  <div class="modal-card sheet">
+    <div class="modal-head">
+      <div class="cmp-title"><strong>اعمل PDF من الصور</strong><span id="mkCount"></span></div>
+      <button class="icon-btn" type="button" data-close aria-label="قفل">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div class="f-sec">
+        <div class="f-label">الصور</div>
+        <div class="seg accent" data-k="src"><button type="button" data-v="original">الأصل من غير ضغط</button><button type="button" data-v="compressed">مضغوطة</button></div>
+        <div class="hint mt" id="mkSrcHint"></div>
+      </div>
+      <div class="f-sec">
+        <div class="f-label">مقاس الصفحة</div>
+        <div class="seg" data-k="page"><button type="button" data-v="image">مقاس الصورة</button><button type="button" data-v="a4">A4</button></div>
+      </div>
+      <div class="f-sec">
+        <div class="f-label">الترتيب</div>
+        <div class="seg" data-k="order"><button type="button" data-v="name">بالاسم (1، 2، 10)</button><button type="button" data-v="added">زي ما اتضافت</button></div>
+      </div>
+      <div class="f-sec">
+        <div class="f-label">اسم الملف</div>
+        <div class="num-input"><input type="text" id="mkName" spellcheck="false" autocomplete="off"><em>.pdf</em></div>
+      </div>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn ghost" type="button" data-close>إلغاء</button>
+      <button class="btn primary" type="button" id="mkGo">اعمل الـ PDF</button>
+    </div>
+  </div>
+</div>
+
+<footer class="foot">مفيش ولا ملف بيترفع على أي سيرفر — المعالجة كلها على جهازك.</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-<script type="module" src="app.js?v=1"></script>
+<script type="module" src="app.js?v=2"></script>
 </body>
 </html>
